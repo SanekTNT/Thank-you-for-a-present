@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.presentator.model.entities.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,13 +51,16 @@ public class FriendsService {
     }
 
     private void getFriendFromUIDAndPutItInUserList(String uid) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference.child("users_new").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                userUIDs.put(user, uid);
-                userFriendStatusMap.put(user, Boolean.TRUE);
-                friendsAdapter.addItem(user);
+                if(!firebaseUser.getUid().equals(uid)) {
+                    userUIDs.put(user, uid);
+                    userFriendStatusMap.put(user, Boolean.TRUE);
+                    friendsAdapter.addItem(user);
+                }
             }
 
             @Override
