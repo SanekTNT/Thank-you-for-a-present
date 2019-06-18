@@ -67,19 +67,17 @@ public class FriendsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (query.equals("")) {
-                    friendsController.displayUserFriends();
-                } else {
-                    friendsController.displayAllUsersByNickname(query);
-                }
-                //searchView.clearFocus();
+                friendsController.displayAllUsersByNickname(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                friendsController.displayAllUsersByNickname(newText);
-                //searchView.clearFocus();
+                if(newText.equals("")){
+                    friendsController.displayUserFriends();
+                } else {
+                    friendsController.displayAllUsersByNickname(newText);
+                }
                 return true;
             }
         });
