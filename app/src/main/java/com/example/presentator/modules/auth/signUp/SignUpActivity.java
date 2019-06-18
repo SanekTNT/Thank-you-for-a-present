@@ -23,6 +23,7 @@ public class SignUpActivity extends AppCompatActivity implements SignUpView {
     private EditText passwordConfirmationEt;
     private RadioGroup genderRadioGroup;
     private Button signUpBtn;
+    private static final String BASE_PHOTO_URL = "https://firebasestorage.googleapis.com/v0/b/presentator-2e392.appspot.com/o/account.png?alt=media&token=fec23e84-3cdc-40e7-b98d-bb4d608c5554";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class SignUpActivity extends AppCompatActivity implements SignUpView {
         String username = usernameEt.getText().toString().trim();
         String email = emailEt.getText().toString().trim();
         User user = new User(fullName, username, gender);
+        user.setImageURL(BASE_PHOTO_URL);
         controller.signUp(user, email, password);
     }
 
