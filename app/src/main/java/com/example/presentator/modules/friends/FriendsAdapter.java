@@ -13,48 +13,24 @@ import com.example.presentator.R;
 import com.example.presentator.model.entities.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.UserViewHolder> {
 
     private List<User> userList = new ArrayList<>();
-    private Map<User, Boolean> userFriendStatusMap = new HashMap<>();
-    private Map<User, String> userUIDs = new HashMap<>();
+    private FriendsService friendsService;
 
-    public void addItem(Collection<User> usersCollection) {
-        userList.addAll(usersCollection);
-        notifyDataSetChanged();
-    }
-
-    public void addItem(User user, boolean isFriend) {
+    public void addItem(User user) {
         userList.add(user);
-        userFriendStatusMap.put(user, isFriend);
-        notifyDataSetChanged();
-    }
-
-    public void setItems(Collection<User> usersCollection) {
-        userList.addAll(usersCollection);
         notifyDataSetChanged();
     }
 
     public void clearItems() {
         userList.clear();
         notifyDataSetChanged();
-    }
-
-    public boolean isItemInList(User user) {
-        return userList.contains(user);
-    }
-
-    public void addUserUid(User user, String uid) {
-        userUIDs.put(user, uid);
     }
 
     @NonNull
@@ -70,6 +46,10 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.UserView
 
     public int getItemCount() {
         return userList.size();
+    }
+
+    public void setFriendsService(FriendsService friendsService) {
+        this.friendsService = friendsService;
     }
 
     class UserViewHolder extends RecyclerView.ViewHolder {
@@ -92,16 +72,13 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.UserView
             nickTextView.setText(user.getNick());
             nameTextView.setText(user.getName());
             genderTextView.setText(user.getGender().toString());
-            if ((userFriendStatusMap.containsKey(user)) && (userFriendStatusMap.get(user).equals(Boolean.TRUE))) {
+            if (friendsService.isUserFriendOfCurrentFirebaseUser(user)) {
                 friendStatus.setImageResource(R.drawable.tick_button);
             } else {
                 friendStatus.setImageResource(R.drawable.add_friend);
                 friendStatus.setOnClickListener(view -> {
                     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("friends")
-                            .child(firebaseUser.getUid()).push().setValue(userUIDs.get(user));
-                    userFriendStatusMap.put(user, true);
+                    friendsService.putFriendUIDIntoFirebaseDatabase(firebaseUser, user);
                     friendStatus.setImageResource(R.drawable.tick_button);
                 });
             }

@@ -11,19 +11,26 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FriendsService {
 
     private FriendsAdapter friendsAdapter;
     private DatabaseReference databaseReference;
+    private Map<User, Boolean> userFriendStatusMap;
+    private Map<User, String> userUIDs;
 
     public FriendsService(FriendsAdapter friendsAdapter) {
         this.friendsAdapter = friendsAdapter;
         this.databaseReference = FirebaseDatabase.getInstance().getReference();
+        this.userFriendStatusMap = new HashMap<>();
+        this.userUIDs = new HashMap<>();
+        friendsAdapter.setFriendsService(this);
     }
 
     public void getFriendsByUser(FirebaseUser user) {
+        friendsAdapter.clearItems();
         databaseReference.child("friends").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -47,8 +54,9 @@ public class FriendsService {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                friendsAdapter.addUserUid(user, uid);
-                friendsAdapter.addItem(user, true);
+                userUIDs.put(user, uid);
+                userFriendStatusMap.put(user, Boolean.TRUE);
+                friendsAdapter.addItem(user);
             }
 
             @Override
@@ -61,14 +69,15 @@ public class FriendsService {
     }
 
     public void getUsersByNickname(String nickname) {
+        friendsAdapter.clearItems();
         databaseReference.child("users_new").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     User user = d.getValue(User.class);
                     if (user.getNick().contains(nickname)) {
-                        friendsAdapter.addItem(Collections.singleton(user));
-                        friendsAdapter.addUserUid(user, d.getKey());
+                        userUIDs.put(user, d.getKey());
+                        friendsAdapter.addItem(user);
                     }
                 }
             }
@@ -80,5 +89,20 @@ public class FriendsService {
                         databaseError.toException());
             }
         });
+    }
+
+    public boolean isUserFriendOfCurrentFirebaseUser(User user){
+        if ((userFriendStatusMap.containsKey(user))
+                && (userFriendStatusMap.get(user).equals(Boolean.TRUE))) {
+            return true;
+        }
+        return false;
+    }
+
+    public void putFriendUIDIntoFirebaseDatabase(FirebaseUser firebaseUser, User user){
+        FirebaseDatabase.getInstance().getReference()
+                .child("friends")
+                .child(firebaseUser.getUid()).push().setValue(userUIDs.get(user));
+        userFriendStatusMap.put(user, true);
     }
 }
