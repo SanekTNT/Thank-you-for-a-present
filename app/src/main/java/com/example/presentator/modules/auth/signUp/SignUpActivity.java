@@ -52,27 +52,24 @@ public class SignUpActivity extends AppCompatActivity implements SignUpView {
     }
 
     private void signUp() {
-        String password = passwordEt.getText().toString().trim();
-        String passwordConfirmation = passwordConfirmationEt.getText().toString().trim();
-        if (!password.equals(passwordConfirmation)) {
-            showPasswordsNotSameError();
-            return;
+        try {
+            String fullName = fullNameEt.getText().toString().trim();
+            controller.checkFullName(fullName);
+            String username = usernameEt.getText().toString().trim();
+            controller.checkNickName(username);
+            String email = emailEt.getText().toString().trim();
+            controller.checkMail(email);
+            String password = passwordEt.getText().toString().trim();
+            String passwordConfirmation = passwordConfirmationEt.getText().toString().trim();
+            controller.checkPasswords(password, passwordConfirmation);
+            User.Gender gender = getSelectedGender();
+            controller.checkGender(gender);
+            User user = new User(fullName, username, gender);
+            user.setImageURL(BASE_PHOTO_URL);
+            controller.signUp(user, email, password);
+        } catch (IllegalArgumentException e) {
+            showErrMsgWithToast(e.getMessage());
         }
-        User.Gender gender = getSelectedGender();
-        if (gender == null) {
-            showGenderRequiredError();
-            return;
-        }
-        String fullName = fullNameEt.getText().toString().trim();
-        String username = usernameEt.getText().toString().trim();
-        String email = emailEt.getText().toString().trim();
-        User user = new User(fullName, username, gender);
-        user.setImageURL(BASE_PHOTO_URL);
-        controller.signUp(user, email, password);
-    }
-
-    private void showGenderRequiredError() {
-        showErrMsgWithToast("Gender required");
     }
 
     private User.Gender getSelectedGender() {
@@ -85,11 +82,6 @@ public class SignUpActivity extends AppCompatActivity implements SignUpView {
             default:
                 return null;
         }
-    }
-
-
-    private void showPasswordsNotSameError() {
-        showErrMsgWithToast("Passwords are not same");
     }
 
     private void showErrMsgWithToast(String msg) {

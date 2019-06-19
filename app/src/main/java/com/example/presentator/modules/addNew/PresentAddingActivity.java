@@ -63,9 +63,17 @@ public class PresentAddingActivity extends AppCompatActivity implements PresentA
         addPresentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String presentNameString = presentName.getText().toString().trim();
-                String descriptionString = description.getText().toString().trim();
-                controller.addNewPresent(new Gift(presentNameString, descriptionString), getGiftImage());
+                try {
+                    String presentNameString = presentName.getText().toString().trim();
+                    controller.ifStringIsEmptyThenThrowIllegalArgumentException(presentNameString,
+                            "Present name required");
+                    String descriptionString = description.getText().toString().trim();
+                    controller.ifStringIsEmptyThenThrowIllegalArgumentException(descriptionString,
+                            "Description required");
+                    controller.addNewPresent(new Gift(presentNameString, descriptionString), getGiftImage());
+                } catch (IllegalArgumentException e){
+                    showErrMsgWithToast(e.getMessage());
+                }
             }
         });
 
@@ -75,6 +83,10 @@ public class PresentAddingActivity extends AppCompatActivity implements PresentA
         });
 
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5F8109")));
+    }
+
+    private void showErrMsgWithToast(String msg) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     private Bitmap getGiftImage() {

@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.example.presentator.model.entities.Gift;
+import com.example.presentator.modules.validation.ValidationService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +40,7 @@ public class PresentAddingController {
     private static final String IMAGE_DIRECTORY = "/demonuts";
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
+    private ValidationService validationService = new ValidationService();
     private PresentAddingView view;
     private DatabaseReference giftsRef = FirebaseDatabase.getInstance().getReference().child("gifts");
     private Gift gift;
@@ -149,5 +151,9 @@ public class PresentAddingController {
             e1.printStackTrace();
         }
         return "";
+    }
+
+    public void ifStringIsEmptyThenThrowIllegalArgumentException(String string, String message){
+        validationService.ifStringIsEmptyThenThrowIllegalArgumentException(string, message);
     }
 }
