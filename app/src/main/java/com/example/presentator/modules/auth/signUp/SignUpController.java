@@ -57,4 +57,5 @@ public class SignUpController {
         validationService.checkPasswordNotEmptyAndContainsMoreThanSixSymbols(password2, 2);
         validationService.checkPasswordForIdentity(password1, password2);
     }
+
 }

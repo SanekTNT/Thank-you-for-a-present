@@ -1,5 +1,6 @@
 package com.example.presentator.model.entities;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class User {
@@ -7,6 +8,7 @@ public class User {
     private String nick;
     private Gender gender;
     private String imageURL;
+    private Date birthday;
 
     public User(String name, String nick, Gender gender, String imageURL) {
         this.name = name;
@@ -56,6 +58,14 @@ public class User {
         this.imageURL = imageURL;
     }
 
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,7 +74,8 @@ public class User {
         return Objects.equals(name, user.name) &&
                 Objects.equals(nick, user.nick) &&
                 gender == user.gender &&
-                Objects.equals(imageURL, user.imageURL);
+                Objects.equals(imageURL, user.imageURL) &&
+                Objects.equals(birthday, user.birthday);
     }
 
     @Override
